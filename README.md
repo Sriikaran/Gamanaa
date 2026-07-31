@@ -1,107 +1,112 @@
-# Gamana ( AI-Based Behavioral Traffic Management System )
+# 🚦 Gamana
 
-Welcome to **Gamana** , a highly intelligent, real-time traffic management system. The core objective of Gamana is to eliminate the inefficiencies of traditional, static traffic light timers. By utilizing advanced computer vision and predictive analytics, Gamana dynamically adapts traffic signals based on actual vehicular density, lane pressure, and observed congestion in real-time.
+**The Intelligent, AI-Driven Traffic Orchestration System**
+
+[![React](https://img.shields.io/badge/Frontend-React%20Vite-blue)](https://reactjs.org/)
+[![Backend](https://img.shields.io/badge/Backend-Flask%20%7C%20Python-green)](https://flask.palletsprojects.com/)
+[![YOLOv8](https://img.shields.io/badge/Computer%20Vision-YOLOv8-yellow)](https://github.com/ultralytics/ultralytics)
+[![Featherless AI](https://img.shields.io/badge/AI%20Reasoning-Featherless%20%7C%20Kimi--K2--Instruct-purple)](https://featherless.ai)
+
+Welcome to **Gamana**, a next-generation traffic management system built for the modern smart city. Traditional traffic lights are dumb—they run on static, hardcoded timers that cause immense congestion, wasted fuel, and phantom traffic jams. 
+
+**Gamana** changes everything by combining real-time edge computer vision (YOLOv8) with high-level LLM reasoning (Featherless AI) to dynamically orchestrate traffic lights based on live vehicle density, lane pressure, and complex traffic states.
 
 ---
 
-## 🚀 Key Features
+## 🚀 The Hackathon Edge: What Makes Gamana Special?
 
-- **Real-Time Vehicle Detection & Tracking**: Utilizes **YOLOv8** (You Only Look Once) to identify vehicles on video feeds with pinpoint accuracy, coupled with a custom motion tracker for maintaining persistent vehicle IDs across frames.
-- **Dynamic Lane Pressure Analysis**: Automatically measures the "pressure" of each lane by analyzing the number of moving vs. stationary vehicles and their respective wait times.
-- **Intelligent Signal Controller**: Calculates optimal green light durations on the fly. Lanes with the highest pressure and longest wait times are prioritized seamlessly.
-- **Predictive Traffic Modeling**: Smooths out historical traffic data to accurately predict upcoming congestion spikes, adjusting signal behaviors *before* severe traffic jams occur.
-- **Real-Time Dashboard**: A sleek, modern **React** frontend that visualizes the current simulation, including live video feeds, lane geometries, pressure charts, and exactly what decisions the AI is making in real-time.
+While most smart traffic systems stop at basic vehicle counting, Gamana introduces a **Dual-Brain Architecture**:
+1. **The Fast Brain (YOLOv8 + Motion Tracking):** Processes video frames at 30+ FPS, mapping exact bounding boxes, counting vehicles, and tracking their persistent IDs across multiple lanes.
+2. **The Slow Brain (Featherless AI Integration):** An asynchronous LLM-powered traffic strategist (`moonshotai/Kimi-K2-Instruct` via Featherless AI). It ingests JSON snapshots of the entire intersection state and reasons through complex edge cases (e.g., phantom braking, asymmetrical congestion) to override basic logic with human-like strategic foresight.
+
+## ✨ Key Features
+
+- **Real-Time YOLOv8 Vehicle Tracking**: High-precision edge inference that doesn't just detect cars, but tracks their trajectories and wait times.
+- **Dynamic Lane Pressure Analysis**: Computes algorithmic "pressure" scores based on volume, stagnation time, and queue length.
+- **Featherless AI Command Center**: A live React dashboard panel that exposes the AI's real-time reasoning. Watch the AI digest intersection metrics and dictate signal overrides live!
+- **Real-Time Dashboard**: A blazing-fast React/Vite UI visualizing video feeds, lane geometries, dynamic charts, and AI telemetry (inference latency, snapshot age, model status) via WebSockets.
+- **Anti-Phantom Jam Logic**: Algorithmic interventions to clear "ghost traffic" caused by cascading brake lights.
 
 ---
 
 ## 🏗️ Architecture Stack
 
-- **Backend**: Python 3.8+, OpenCV (Computer Vision pipelines), PyTorch / Ultralytics YOLOv8 (Inference Engine), Flask & Flask-SocketIO (API & real-time WebSocket communication).
-- **Frontend**: React, Vite, tailwindcss (or standard CSS modules), providing an interactive, blazing-fast user interface.
+### Backend Pipeline
+- **Computer Vision**: PyTorch, Ultralytics YOLOv8, OpenCV
+- **Core API & Real-time Sync**: Python 3.8+, Flask, Flask-SocketIO
+- **AI Strategist**: Featherless AI API (`Kimi-K2-Instruct`) running on an isolated daemon thread to prevent blocking the video pipeline.
+
+### Frontend Dashboard
+- **Framework**: React, Vite, Tailwind CSS
+- **Data Binding**: Real-time SocketIO streams powering dynamic React states.
 
 ---
 
 ## 🛠️ Detailed Setup & Execution Guide
 
-To get Gamana up and running, you need to run both the **Backend AI Server** and the **Frontend Dashboard** simultaneously in two separate terminal windows.
+Gamana requires both the **Backend AI Server** and the **Frontend Dashboard** to run simultaneously.
 
 ### Prerequisites
 - **Python 3.8+** installed on your system.
 - **Node.js** (v16+) installed for frontend compilation.
+- **Featherless AI API Key**: Added to `backend/.env`.
 
 ---
 
 ### Step 1: Running the Backend
 
-The backend handles all heavy lifting: video frame processing, running the YOLOv8 model, executing the signal control logic, and streaming the visualized state to the dashboard. 
+The backend handles heavy lifting: video parsing, YOLO inference, calculating signal logic, fetching LLM strategies, and WebSocket broadcasting.
 
-This project is configured to use a local Python virtual environment (`venv`) to ensure dependencies do not conflict with your global system.
-
-1. **Open a terminal** and navigate to the project root directory:
+1. **Open a terminal** and navigate to the backend:
    ```bash
-   cd path/to/gamana
+   cd gamana/backend
    ```
-
-2. **Navigate to the backend folder**:
+2. **Configure Environment Variables**:
+   Create a `.env` file in the `backend/` directory (or use `.env.example`):
+   ```env
+   FEATHERLESS_API_KEY=your_featherless_api_key_here
+   FEATHERLESS_BASE_URL=https://api.featherless.ai/v1
+   FEATHERLESS_MODEL=moonshotai/Kimi-K2-Instruct
+   ```
+3. **Install Dependencies** (Using the local virtual environment):
    ```bash
-   cd backend
+   ..\venv\Scripts\python.exe -m pip install -r requirements_local.txt
    ```
-
-3. **Install Dependencies** (Only required if you haven't already):
-   *Ensure you are using the virtual environment's python/pip!*
+4. **Start the AI Server**:
    ```bash
-   ..\venv\Scripts\python.exe -m pip install -r requirements.txt
+   ..\venv\Scripts\python.exe main.py --source ../indian_traffic.mp4 --no-display
    ```
-   *(Note: For Mac/Linux users, this would be `../venv/bin/python -m pip install -r requirements.txt`)*
-
-4. **Start the AI Processing Server**:
-   You can start the backend by running `main.py` using the virtual environment interpreter and pointing it to a video source.
-   ```bash
-   ..\venv\Scripts\python.exe main.py --source intersection.mp4
-   ```
-   **Alternative Sources:**
-   - Use a different video file: `--source your_video_file.mp4`
-   - Use your physical webcam: `--source 0`
-   - Run without a pop-up OpenCV window (Headless mode): Add `--no-display`
-
-By default, the backend will now be analyzing the video and broadcasting data via SocketIO on **Port 5000**.
+   *(The server will boot up on Port 5000 and begin processing the video.)*
 
 ---
 
-### Step 2: Running the Frontend
+### Step 2: Running the Frontend Dashboard
 
-The frontend receives the real-time data from the backend and renders the interactive dashboard UI.
-
-1. **Open a SECOND terminal window** and navigate to the project root directory.
-
-2. **Navigate to the frontend folder**:
+1. **Open a SECOND terminal** and navigate to the frontend:
    ```bash
-   cd frontend
+   cd gamana/frontend
    ```
-
-3. **Install Node Packages** (Only required the very first time):
+2. **Install Node Packages**:
    ```bash
    npm install
    ```
-
-4. **Start the Development Server**:
+3. **Start the Development Server**:
    ```bash
    npm run dev
    ```
 
-The Vite development server will start up rapidly.
+### Step 3: View the Magic!
 
-### Step 3: View the Dashboard!
-
-Once both the backend and frontend are running:
-1. Open your favorite web browser.
-2. Navigate to **[http://localhost:5173](http://localhost:5173)** (or whichever port Vite assigned in the terminal).
-3. You will immediately see the live traffic analysis and the AI actively managing the signal controllers!
+Navigate to **[http://localhost:5173](http://localhost:5173)**. You will instantly see:
+- The YOLO bounding boxes tracking traffic.
+- The dynamic charts adjusting to lane pressures.
+- The **Featherless AI panel** at the bottom analyzing the JSON intersection state and producing intelligent signal overrides in real time!
 
 ---
 
-## 🤝 Troubleshooting
+## 💡 What's Next?
+- **Emergency Vehicle Preemption (EVP)**: Training the vision model to detect ambulances and fire trucks, allowing the AI to instantly force a green corridor.
+- **Multi-Intersection Sync**: Scaling the Featherless AI prompt to ingest data from adjacent intersections to orchestrate "green waves" across entire city grids.
 
-- **`ModuleNotFoundError` on Backend**: This happens if you try to run `python main.py` using your system python rather than the environment included in `gamana/venv`. Always use `..\venv\Scripts\python.exe` or activate the virtual environment first.
-- **`Cannot open source: video.mp4`**: If your video file is located inside a OneDrive synced folder, it might be a "Cloud-only" placeholder. Open the file normally via File Explorer first to force Windows to download it to your physical disk.
-- **Port In Use (5000 / 5173)**: Ensure no other applications (like another Flask app or Node server) are currently holding the ports open.
+---
+*Built with ❤️ for the Hackathon.*
